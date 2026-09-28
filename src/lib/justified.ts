@@ -13,8 +13,14 @@ export interface Layout {
 }
 
 /** Absolute boxes for every photo, Flickr-style justified rows. */
-export function layout(ratios: number[], containerWidth: number, rowHeight = 240, gap = 4): Layout {
-  if (ratios.length === 0 || containerWidth <= 0) return { boxes: [], height: 0 }
+export function layout(
+  ratios: number[],
+  containerWidth: number,
+  rowHeight = 240,
+  gap = 4,
+): Layout {
+  if (ratios.length === 0 || containerWidth <= 0)
+    return { boxes: [], height: 0 }
   const result = justifiedLayout(ratios, {
     containerWidth,
     targetRowHeight: rowHeight,
@@ -29,10 +35,18 @@ export function layout(ratios: number[], containerWidth: number, rowHeight = 240
  * and a height, so both `top` and `top + height` are non-decreasing across the
  * array and two binary searches find the window in O(log n).
  */
-export function visibleIndices(boxes: Box[], scrollTop: number, viewportHeight: number, overscan = 600): number[] {
+export function visibleIndices(
+  boxes: Box[],
+  scrollTop: number,
+  viewportHeight: number,
+  overscan = 600,
+): number[] {
   const from = scrollTop - overscan
   const to = scrollTop + viewportHeight + overscan
-  const start = lowerBound(boxes.length, (i) => boxes[i].top + boxes[i].height >= from)
+  const start = lowerBound(
+    boxes.length,
+    (i) => boxes[i].top + boxes[i].height >= from,
+  )
   const end = lowerBound(boxes.length, (i) => boxes[i].top >= to)
   return Array.from({ length: Math.max(0, end - start) }, (_, k) => start + k)
 }

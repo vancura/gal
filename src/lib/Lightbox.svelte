@@ -11,7 +11,13 @@
   {#if !loaded}
     <img class="preview" src={thumbUrl(photo.id)} alt="" />
   {/if}
-  <img class="full" class:loaded src={fullUrl(photo.id)} alt={photo.name} onload={() => (loaded = true)} />
+  <img
+    class="full"
+    class:loaded
+    src={fullUrl(photo.id)}
+    alt={photo.name}
+    onload={() => (loaded = true)}
+  />
 </button>
 
 <style>

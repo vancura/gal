@@ -11,7 +11,12 @@
   let scrollTop = $state(0)
   let open = $state<Photo | null>(null)
 
-  const lay = $derived(layout(photos.map((p) => p.width / p.height), width))
+  const lay = $derived(
+    layout(
+      photos.map((p) => p.width / p.height),
+      width,
+    ),
+  )
   const indices = $derived(visibleIndices(lay.boxes, scrollTop, viewportHeight))
 
   onMount(async () => {
@@ -44,7 +49,12 @@
         style:height="{b.height}px"
         onclick={() => (open = photos[i])}
       >
-        <img src={thumbUrl(photos[i].id)} alt={photos[i].name} loading="lazy" decoding="async" />
+        <img
+          src={thumbUrl(photos[i].id)}
+          alt={photos[i].name}
+          loading="lazy"
+          decoding="async"
+        />
       </button>
     {/each}
   </div>
@@ -59,19 +69,25 @@
     margin: 0;
     background: #111;
     color: #ccc;
-    font: 14px system-ui, sans-serif;
+    font:
+      14px system-ui,
+      sans-serif;
   }
+
   main {
     height: 100vh;
     overflow-y: auto;
   }
+
   .msg {
     padding: 2rem;
     text-align: center;
   }
+
   .grid {
     position: relative;
   }
+
   .tile {
     position: absolute;
     padding: 0;
@@ -80,6 +96,7 @@
     cursor: zoom-in;
     overflow: hidden;
   }
+
   .tile img {
     display: block;
     width: 100%;

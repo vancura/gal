@@ -19,7 +19,9 @@ it('lays out rows and returns exactly the boxes in the window', () => {
     expect(lay.boxes[i].top + lay.boxes[i].height).toBeGreaterThanOrEqual(5000)
     expect(lay.boxes[i].top).toBeLessThan(5600)
   }
-  expect(lay.boxes[mid[0] - 1].top + lay.boxes[mid[0] - 1].height).toBeLessThan(5000)
+  expect(lay.boxes[mid[0] - 1].top + lay.boxes[mid[0] - 1].height).toBeLessThan(
+    5000,
+  )
   expect(lay.boxes[mid[mid.length - 1] + 1].top).toBeGreaterThanOrEqual(5600)
 
   expect(visibleIndices(lay.boxes, lay.height + 100, 600, 0)).toHaveLength(0)

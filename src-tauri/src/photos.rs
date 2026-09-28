@@ -2,10 +2,10 @@
 //! The list command already returns the row shape a future index would.
 
 use std::collections::HashMap;
+use std::fs;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
 use std::time::UNIX_EPOCH;
-use std::fs;
 
 use image::metadata::Orientation;
 use image::{ImageDecoder, ImageReader};
@@ -21,11 +21,6 @@ pub struct Photo {
     pub modified_ms: u64,
     #[serde(skip)]
     pub path: PathBuf,
-}
-
-/// Hardcoded for the POC.
-pub fn library_dir() -> PathBuf {
-    PathBuf::from(std::env::var("HOME").expect("HOME is set")).join("Desktop/GAL")
 }
 
 /// ponytail: identity is path + size + mtime, not a content hash.
@@ -46,11 +41,16 @@ fn is_jpeg(path: &Path) -> bool {
 
 /// Reads only the JPEG header, no pixel decode. Swaps width/height for rotated EXIF orientations.
 fn oriented_dims(path: &Path) -> image::ImageResult<(u32, u32)> {
-    let mut decoder = ImageReader::open(path)?.with_guessed_format()?.into_decoder()?;
+    let mut decoder = ImageReader::open(path)?
+        .with_guessed_format()?
+        .into_decoder()?;
     let (w, h) = decoder.dimensions();
     let rotated = matches!(
         decoder.orientation().unwrap_or(Orientation::NoTransforms),
-        Orientation::Rotate90 | Orientation::Rotate270 | Orientation::Rotate90FlipH | Orientation::Rotate270FlipH
+        Orientation::Rotate90
+            | Orientation::Rotate270
+            | Orientation::Rotate90FlipH
+            | Orientation::Rotate270FlipH
     );
     Ok(if rotated { (h, w) } else { (w, h) })
 }
@@ -115,7 +115,11 @@ pub fn list(dir: &Path, cache_file: &Path) -> Result<Vec<Photo>, String> {
         }
     }
 
-    photos.sort_by(|a, b| b.modified_ms.cmp(&a.modified_ms).then_with(|| a.name.cmp(&b.name)));
+    photos.sort_by(|a, b| {
+        b.modified_ms
+            .cmp(&a.modified_ms)
+            .then_with(|| a.name.cmp(&b.name))
+    });
     Ok(photos)
 }
 
@@ -127,7 +131,9 @@ mod tests {
     fn lists_jpegs_and_reuses_the_dims_cache() {
         let dir = std::env::temp_dir().join(format!("gal-test-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
-        image::RgbImage::new(40, 30).save(dir.join("a.jpg")).unwrap();
+        image::RgbImage::new(40, 30)
+            .save(dir.join("a.jpg"))
+            .unwrap();
         fs::write(dir.join("not-a-photo.txt"), b"x").unwrap();
         let cache = dir.join("cache/dims.json");
 

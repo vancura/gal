@@ -1,4 +1,6 @@
 .DS_Store
+Thumbs.db
+desktop.ini
 node_modules
 /build
 /.svelte-kit
@@ -8,6 +10,8 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+pnpm-debug.log*
+npm-debug.log*
 
 # sibling reference project, not part of this app
 reflect-open/

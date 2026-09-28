@@ -1,0 +1,77 @@
+// Project-local Zed settings for Gal (Tauri 2 + Svelte 5 + Rust).
+// See https://zed.dev/docs/configuring-zed for the full reference.
+//
+// Note: `auto_install_extensions` only works in *user* settings, not here.
+// Add this to your global settings.json (`zed: open settings`) so the
+// Svelte extension installs itself whenever you open this project:
+//   "auto_install_extensions": { "svelte": true }
+{
+  // Keep the file tree/search fast and free of generated output.
+  // "..." preserves Zed's built-in default exclusions.
+  "file_scan_exclusions": [
+    "**/target",
+    "**/.svelte-kit",
+    "**/build",
+    "**/src-tauri/gen/schemas",
+    "...",
+  ],
+
+  "languages": {
+    // Explicit even though these match the defaults (format_on_save "on"
+    // globally, rust-analyzer/rustfmt for Rust), so this file is a complete,
+    // self-contained description of how the project formats, independent of
+    // anyone's global settings. rust-analyzer's formatter delegates to
+    // rustfmt, so this matches the "Rust: fmt"/"Format: all" tasks exactly.
+    "Rust": {
+      "format_on_save": "on",
+      "formatter": "language_server",
+    },
+
+    // The rest explicitly pin "formatter": "prettier" so on-save formatting
+    // is the exact same tool/config as the `pnpm format` task (.prettierrc).
+    // Without this, Zed can fall back to its own built-in formatter for a
+    // language (e.g. JSON), which uses a different style (adds trailing
+    // commas) and fights Prettier's output on every save. Prettier also
+    // respects .prettierignore, so .zed/*.json and .vscode/*.json are left
+    // untouched, keeping their own trailing-comma convention.
+    "Svelte": {
+      "format_on_save": "on",
+      "formatter": "prettier",
+    },
+
+    "TypeScript": {
+      "format_on_save": "on",
+      "formatter": "prettier",
+    },
+
+    "JavaScript": {
+      "format_on_save": "on",
+      "formatter": "prettier",
+    },
+
+    "JSON": {
+      "format_on_save": "on",
+      "formatter": "prettier",
+    },
+
+    "TOML": {
+      "format_on_save": "on",
+    },
+  },
+
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        // Surface clippy lints (not just `cargo check`) inline as you edit.
+        "check": {
+          "command": "clippy",
+        },
+
+        // src-tauri only ships a bin + lib, no benches/examples worth checking on every save.
+        "cargo": {
+          "allTargets": false,
+        },
+      },
+    },
+  },
+}

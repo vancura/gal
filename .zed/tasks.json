@@ -1,0 +1,59 @@
+// Project tasks for Gal. Run with `task: spawn` in the command palette,
+// or F4/`debugger: start` to debug the Rust ones.
+// See https://zed.dev/docs/tasks for documentation.
+[
+  {
+    "label": "pnpm install",
+    "command": "pnpm install",
+  },
+
+  {
+    "label": "Tauri: dev",
+    "command": "pnpm tauri dev",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "never",
+  },
+
+  {
+    "label": "Tauri: build",
+    "command": "pnpm tauri build",
+    "use_new_terminal": true,
+  },
+
+  {
+    "label": "Frontend: check (svelte-check)",
+    "command": "pnpm check",
+  },
+
+  {
+    "label": "Frontend: test (vitest)",
+    "command": "pnpm test",
+  },
+
+  {
+    "label": "Rust: test (src-tauri)",
+    "command": "cargo test --manifest-path src-tauri/Cargo.toml",
+  },
+
+  {
+    "label": "Rust: clippy (src-tauri)",
+    "command": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets",
+  },
+
+  {
+    "label": "Rust: fmt (src-tauri)",
+    "command": "cargo fmt --manifest-path src-tauri/Cargo.toml",
+  },
+
+  {
+    "label": "Frontend: fmt (prettier)",
+    "command": "pnpm format",
+  },
+
+  {
+    "label": "Format: all",
+    "command": "pnpm format && cargo fmt --manifest-path src-tauri/Cargo.toml",
+  },
+]

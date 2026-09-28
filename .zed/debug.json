@@ -1,0 +1,17 @@
+// Debug configurations for Gal. Rust also supports automatic scenario
+// creation: click the run/debug gutter icon next to any #[test] fn,
+// or use `debugger: start` (f4 f4) - no config needed for that.
+// See https://zed.dev/docs/debugger and https://zed.dev/docs/languages/rust
+[
+  {
+    "label": "Debug Rust lib tests (src-tauri)",
+    "adapter": "CodeLLDB",
+    "build": {
+      "command": "cargo",
+      "args": ["test", "--manifest-path", "src-tauri/Cargo.toml", "--lib"],
+    },
+
+    // Required for CodeLLDB (not GDB) so it can locate Rust source/std formatters.
+    "sourceLanguages": ["rust"],
+  },
+]

@@ -14,9 +14,11 @@ pub const THUMB_HEIGHT: u32 = 512;
 /// Written temp-then-rename, so a concurrent duplicate request is harmless.
 pub fn ensure(src: &Path, thumbs_dir: &Path, id: &str) -> Result<PathBuf, String> {
     let out = thumbs_dir.join(format!("{id}.jpg"));
+
     if out.exists() {
         return Ok(out);
     }
+
     fs::create_dir_all(thumbs_dir).map_err(|e| e.to_string())?;
 
     // ponytail: full decode of the source JPEG per thumbnail. If a 100k backfill
@@ -28,10 +30,13 @@ pub fn ensure(src: &Path, thumbs_dir: &Path, id: &str) -> Result<PathBuf, String
         .map_err(|e| e.to_string())?;
     let orientation = decoder.orientation().unwrap_or(Orientation::NoTransforms);
     let mut img = DynamicImage::from_decoder(decoder).map_err(|e| e.to_string())?;
+
     img.apply_orientation(orientation);
 
     let thumb = if img.height() > THUMB_HEIGHT {
-        let width = (img.width() as f64 * THUMB_HEIGHT as f64 / img.height() as f64).round().max(1.0) as u32;
+        let width = (img.width() as f64 * THUMB_HEIGHT as f64 / img.height() as f64)
+            .round()
+            .max(1.0) as u32;
         img.thumbnail(width, THUMB_HEIGHT)
     } else {
         img
@@ -39,6 +44,7 @@ pub fn ensure(src: &Path, thumbs_dir: &Path, id: &str) -> Result<PathBuf, String
 
     let tmp = thumbs_dir.join(format!(".{id}.tmp"));
     let mut file = BufWriter::new(File::create(&tmp).map_err(|e| e.to_string())?);
+
     thumb
         .to_rgb8()
         .write_with_encoder(JpegEncoder::new_with_quality(&mut file, 80))

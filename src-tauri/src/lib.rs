@@ -12,13 +12,15 @@ use tauri::{Manager, State};
 struct Library {
     by_id: Arc<Mutex<HashMap<String, PathBuf>>>,
     cache_dir: PathBuf,
+    library_dir: PathBuf,
 }
 
 #[tauri::command]
 async fn list_photos(lib: State<'_, Library>) -> Result<Vec<photos::Photo>, String> {
     let lib = lib.inner().clone();
+
     tauri::async_runtime::spawn_blocking(move || {
-        let listed = photos::list(&photos::library_dir(), &lib.cache_dir.join("dims.json"))?;
+        let listed = photos::list(&lib.library_dir, &lib.cache_dir.join("dims.json"))?;
         let mut by_id = lib.by_id.lock().map_err(|e| e.to_string())?;
         by_id.clear();
         by_id.extend(listed.iter().map(|p| (p.id.clone(), p.path.clone())));
@@ -36,7 +38,6 @@ fn serve(lib: &Library, uri_path: &str) -> Response<Vec<u8>> {
     let src = lib.by_id.lock().ok().and_then(|m| m.get(id).cloned());
 
     let bytes = match (kind, src) {
-        // ponytail: whole file in memory, no Range support. Add it when videos or huge scans show up.
         ("full", Some(src)) => std::fs::read(&src).map_err(|e| e.to_string()),
         ("thumb", Some(src)) => thumbs::ensure(&src, &lib.cache_dir.join("thumbs"), id)
             .and_then(|p| std::fs::read(p).map_err(|e| e.to_string())),
@@ -48,7 +49,10 @@ fn serve(lib: &Library, uri_path: &str) -> Response<Vec<u8>> {
             .header("Content-Type", "image/jpeg")
             .header("Cache-Control", "max-age=31536000, immutable")
             .body(body),
-        Err(msg) => Response::builder().status(StatusCode::NOT_FOUND).body(msg.into_bytes()),
+
+        Err(msg) => Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(msg.into_bytes()),
     }
     .expect("static response headers are valid")
 }
@@ -58,7 +62,16 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let cache_dir = app.path().app_cache_dir()?;
-            app.manage(Library { by_id: Arc::default(), cache_dir });
+
+            // Hardcoded for the POC. desktop_dir follows redirected (OneDrive, D:\) Desktops on Windows.
+            let library_dir = app.path().desktop_dir()?.join("GAL");
+
+            app.manage(Library {
+                by_id: Arc::default(),
+                cache_dir,
+                library_dir,
+            });
+
             Ok(())
         })
         .register_asynchronous_uri_scheme_protocol("gal", |ctx, request, responder| {
